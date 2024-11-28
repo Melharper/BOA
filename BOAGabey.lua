@@ -1,3 +1,21 @@
+-- Function to adjust the camera angle and zoom
+local function adjustCamera()
+    local camera = game:GetService("Workspace").CurrentCamera
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+
+    -- Wait for the character to load if needed
+    wait(1)
+
+    -- Set the camera to be right above the character's head
+    camera.CameraType = Enum.CameraType.Scriptable
+    camera.CFrame = character.HumanoidRootPart.CFrame * CFrame.new(0, 5, 10)  -- 5 units above and 10 units behind
+    camera.FieldOfView = 70  -- Adjust this for a better zoom level (default is 50)
+
+    -- Lock the camera so it doesn't move
+    camera.CameraSubject = nil
+end
+
 -- Function to create and show the GUI with text
 local function createAndShowGUI()
     -- Create a ScreenGui
@@ -126,6 +144,9 @@ local function rejoinServer()
     -- Use TeleportService to reconnect as a fallback
     game:GetService("TeleportService"):Teleport(game.PlaceId)
 end
+
+-- Call adjustCamera to position the camera correctly
+adjustCamera()
 
 -- Main loop to check and interact with chests
 while true do
