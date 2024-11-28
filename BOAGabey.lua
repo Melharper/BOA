@@ -1,8 +1,19 @@
 -- Use the automate() function to auto-execute the script on Roblox app launch
 automate()
 
--- Load Infinite Yield manually (run this part first in the console, outside the script)
--- loadstring(game:HttpGet("https://cdn.wearedevs.net/scripts/Infinite%20Yield.txt"))()
+-- The game you want to join (replace with the placeId of your game)
+local ExperienceService = game:GetService('ExperienceService')
+local info = {
+    placeId = 606849621,  -- Place ID of the game (replace with your desired game)
+    linkCode = '1773295022'  -- Link code for your private server
+}
+
+-- Automatically join the game when the script executes
+print("Attempting to join the game...")
+ExperienceService:LaunchExperience(info)
+
+-- Wait for Roblox to finish loading before proceeding with the rest of the script
+wait(5)
 
 -- Function to create and show the GUI with text
 local function createAndShowGUI()
