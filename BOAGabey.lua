@@ -1,5 +1,5 @@
 -- Define a flag to enable/disable the script
-local isAutoExecuteEnabled = true
+local isAutoExecuteEnabled = true  -- Set this to true by default
 
 -- Function to display the status message (enabled/disabled)
 local function showStatusMessage(status)
@@ -22,60 +22,33 @@ local function showStatusMessage(status)
     screenGui:Destroy()
 end
 
--- Function to create and show the GUI with text
-local function createAndShowGUI()
-    -- Create a ScreenGui
-    local screenGui = Instance.new("ScreenGui")
-    screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-    print("ScreenGui Created")
-
-    -- Create a TextLabel to display the message multiple times
-    for i = 0, 10 do  -- Repeat 10 times
-        local textLabel = Instance.new("TextLabel")
-        textLabel.Text = "Gabe is so BOAAAA"  -- The text you want to show
-        textLabel.Size = UDim2.new(1, 0, 0.1, 0)  -- Full width, small height
-        textLabel.Position = UDim2.new(0, 0, 0.1 * i, 0)  -- Position it lower with each loop
-        textLabel.TextColor3 = Color3.fromRGB(255, 0, 0)  -- Red text
-        textLabel.TextSize = 50  -- Large text size
-        textLabel.BackgroundTransparency = 1  -- Transparent background
-        textLabel.TextStrokeTransparency = 0.5  -- Slight stroke for readability
-        textLabel.Font = Enum.Font.SourceSansBold  -- Bold font
-        textLabel.Parent = screenGui
-        print("TextLabel Created")
-    end
-
-    -- Wait for 3 seconds before removing the GUI
-    wait(3)
-    screenGui:Destroy()
-    print("ScreenGui Destroyed")
-end
-
--- Create the GUI when the script is executed
-createAndShowGUI()
-
--- Function to play the sound at regular intervals
-local function playSoundContinuously()
-    local sound = Instance.new("Sound")
-    sound.SoundId = "rbxassetid://2820356263"
-    sound.Parent = game.Workspace
-    sound.Looped = true
-    sound.Volume = 10  -- Adjust the volume as needed
-    sound:Play()  -- Play immediately
-
-    -- Play the sound continuously every 5 seconds
-    while true do
-        if not sound.IsPlaying then
-            sound:Play()  -- Play the sound if it stopped
+-- Function to toggle auto-execution when 'P' is pressed
+game:GetService("UserInputService").InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.P then
+        isAutoExecuteEnabled = not isAutoExecuteEnabled  -- Toggle the state
+        print("Auto Execute Enabled: ", isAutoExecuteEnabled)  -- Debug line
+        if isAutoExecuteEnabled then
+            showStatusMessage("Gabe Boa Enabled")
+        else
+            showStatusMessage("Gabe Boa Disabled")
         end
-        wait(5)  -- Wait for 5 seconds before playing again
     end
-end
+end)
 
--- Call the sound-playing function in a separate thread
-spawn(playSoundContinuously)
+-- Ensure that the script stops execution if auto-execution is disabled
+local function checkIfExecutionEnabled()
+    if not isAutoExecuteEnabled then
+        print("Auto-execution is disabled. Halting script execution.")
+        return false  -- If disabled, halt further execution
+    end
+    return true  -- If enabled, continue execution
+end
 
 -- Function to select and spawn Invisible Woman character (only once)
 local function selectAndSpawnCharacter()
+    -- Stop execution if auto-execution is disabled
+    if not checkIfExecutionEnabled() then return end
+
     print("[INFO] Attempting to select and spawn Invisible Woman...")
 
     local args = {
@@ -96,62 +69,18 @@ local function selectAndSpawnCharacter()
     end
 end
 
--- Get necessary services
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Workspace = game:GetService("Workspace")
-local VirtualInputManager = game:GetService("VirtualInputManager")
+-- Add more checks in other parts of the script where execution should be conditional on the flag.
 
--- Function to teleport to the chest (only when a chest is found)
-local function teleportToChest()
-    local chest = Workspace:FindFirstChild("Chest")
-    if chest and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        LocalPlayer.Character.HumanoidRootPart.CFrame = chest.Body.CFrame
-        print("[INFO] Teleported to chest.")
-    end
-end
-
--- Function to interact with the chest (hold 'E' for 5 seconds)
-local function interactWithChest()
-    local chest = Workspace:FindFirstChild("Chest")
-    if chest and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        local chestPos = chest.Body.CFrame.Position
-        local playerPos = LocalPlayer.Character.HumanoidRootPart.Position
-
-        if (chestPos - playerPos).Magnitude <= 10 then
-            -- Simulate 'E' key press for chest interaction
-            print("[INFO] Attempting to claim the chest.")
-            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, nil)  -- Keydown event (press E)
-            wait(5)  -- Hold for 5 seconds (you can adjust the time if needed)
-            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, nil)  -- Keyup event (release E)
-        else
-            print("[INFO] Too far from the chest.")
-        end
-    end
-end
-
--- Function to rejoin the server after chest collection
-local function rejoinServer()
-    print("[INFO] No chest found. Attempting to rejoin...")
-
-    -- Kick the player to mimic Infinite Yield's behavior
-    LocalPlayer:Kick("Rejoining...")
-
-    -- Wait for a moment to allow the kick message to appear
-    wait(2)
-
-    -- Use TeleportService to reconnect as a fallback
-    game:GetService("TeleportService"):Teleport(game.PlaceId)
-end
-
--- Spawn the character only once before the main loop
-selectAndSpawnCharacter()
-
--- Main loop to check and interact with chests
+-- For example, before the main loop runs, check if the flag allows execution:
 while true do
+    -- If auto-execution is disabled, stop the loop
+    if not checkIfExecutionEnabled() then
+        print("Auto-execution is disabled. Exiting main loop.")
+        break
+    end
+    
+    -- Continue with your logic if enabled
     local chest = Workspace:FindFirstChild("Chest")
-
     if chest then
         teleportToChest()
         wait(1) -- Allow time for teleport
@@ -170,10 +99,11 @@ end
 game:GetService("UserInputService").InputBegan:Connect(function(input)
     if input.KeyCode == Enum.KeyCode.P then
         isAutoExecuteEnabled = not isAutoExecuteEnabled  -- Toggle the state
+        print("Auto Execute Enabled: ", isAutoExecuteEnabled)
         if isAutoExecuteEnabled then
-            showStatusMessage("Gabe Boa Enabled")  -- Show enabled status
+            showStatusMessage("Gabe Boa Enabled")
         else
-            showStatusMessage("Gabe Boa Disabled")  -- Show disabled status
+            showStatusMessage("Gabe Boa Disabled")
         end
     end
 end)
