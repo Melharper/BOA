@@ -1,21 +1,3 @@
--- Function to adjust the camera angle and zoom
-local function adjustCamera()
-    local camera = game:GetService("Workspace").CurrentCamera
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-
-    -- Wait for the character to load if needed
-    wait(1)
-
-    -- Set the camera to be right above the character's head
-    camera.CameraType = Enum.CameraType.Scriptable
-    camera.CFrame = character.HumanoidRootPart.CFrame * CFrame.new(0, 5, 10)  -- 5 units above and 10 units behind
-    camera.FieldOfView = 70  -- Adjust this for a better zoom level (default is 50)
-
-    -- Lock the camera so it doesn't move
-    camera.CameraSubject = nil
-end
-
 -- Function to create and show the GUI with text
 local function createAndShowGUI()
     -- Create a ScreenGui
@@ -68,6 +50,24 @@ end
 -- Call the sound-playing function in a separate thread
 spawn(playSoundContinuously)
 
+-- Get necessary services
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local Camera = game:GetService("Workspace").CurrentCamera
+
+-- Adjust the camera angle (right above the player's head, slightly zoomed out)
+local function adjustCamera()
+    local character = LocalPlayer.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        Camera.CameraSubject = character.Humanoid
+        Camera.CFrame = CFrame.new(character.HumanoidRootPart.Position + Vector3.new(0, 5, 0)) -- Camera above the character
+        Camera.FieldOfView = 70  -- Zoomed out slightly for better view
+    end
+end
+
 -- Function to select and spawn Invisible Woman character (only once)
 local function selectAndSpawnCharacter()
     print("[INFO] Attempting to select and spawn Invisible Woman...")
@@ -85,6 +85,7 @@ local function selectAndSpawnCharacter()
 
     if success then
         print("[INFO] Invisible Woman character selected and deployed!")
+        adjustCamera()  -- Adjust the camera after spawning the character
     else
         print("[ERROR] Failed to select character: " .. tostring(result))
     end
@@ -96,19 +97,13 @@ wait(5)
 -- Ensure the character is spawned only once when the game starts
 selectAndSpawnCharacter()
 
--- Get necessary services
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Workspace = game:GetService("Workspace")
-local VirtualInputManager = game:GetService("VirtualInputManager")
-
 -- Function to teleport to the chest (only when a chest is found)
 local function teleportToChest()
     local chest = Workspace:FindFirstChild("Chest")
     if chest and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
         LocalPlayer.Character.HumanoidRootPart.CFrame = chest.Body.CFrame
         print("[INFO] Teleported to chest.")
+        adjustCamera()  -- Re-adjust camera after teleport
     end
 end
 
@@ -144,9 +139,6 @@ local function rejoinServer()
     -- Use TeleportService to reconnect as a fallback
     game:GetService("TeleportService"):Teleport(game.PlaceId)
 end
-
--- Call adjustCamera to position the camera correctly
-adjustCamera()
 
 -- Main loop to check and interact with chests
 while true do
