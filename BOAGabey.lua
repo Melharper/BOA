@@ -86,15 +86,27 @@ local Workspace = game:GetService("Workspace")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local Camera = game.Workspace.CurrentCamera  -- The camera service
 
--- Function to position the camera directly above the character
+-- Function to position the camera directly above the character, ensuring it is unobstructed
 local function setCameraPosition()
     local character = LocalPlayer.Character
     if character and character:FindFirstChild("HumanoidRootPart") then
-        -- Position the camera directly above the character with a slight zoom
-        local position = character.HumanoidRootPart.Position + Vector3.new(0, 10, 0) -- 10 units above the character
+        -- Initial camera position, 10 units above the character
+        local position = character.HumanoidRootPart.Position + Vector3.new(0, 10, 0)
+        local targetPosition = character.HumanoidRootPart.Position
+
+        -- Perform a raycast to check for obstructions between the camera and the character
+        local ray = Ray.new(position, Vector3.new(0, -20, 0))  -- Cast downward to detect any obstructions
+        local hit, hitPosition = Workspace:FindPartOnRay(ray, character)
+
+        -- If the ray hit an object (blocking the view), adjust the camera height
+        if hit then
+            -- Increase height of the camera until there is no obstruction
+            position = position + Vector3.new(0, 5, 0)  -- Raise camera further up if it's blocked
+            print("[INFO] Camera was blocked, adjusting height.")
+        end
 
         -- Set the camera's CFrame to be above the character and facing down
-        Camera.CFrame = CFrame.new(position, character.HumanoidRootPart.Position)  -- Looking straight down at the character
+        Camera.CFrame = CFrame.new(position, targetPosition)  -- Looking straight down at the character
         Camera.FieldOfView = 70  -- Zoom out slightly (adjust as needed)
         Camera.CameraType = Enum.CameraType.Custom  -- Ensure it's set to custom
         print("[INFO] Camera positioned above the character and facing down.")
@@ -146,7 +158,7 @@ local function rejoinServer()
     game:GetService("TeleportService"):Teleport(game.PlaceId)
 end
 
--- Main loop to check and interact with chests
+-- Main loop to continuously check and interact with chests
 while true do
     local chest = Workspace:FindFirstChild("Chest")
 
@@ -154,6 +166,9 @@ while true do
         teleportToChest()
         wait(1) -- Allow time for teleport
         interactWithChest()
+
+        -- Re-adjust camera if blocked by objects while interacting with chest
+        setCameraPosition()
     else
         print("[INFO] Chest not found. Rejoining...")
         rejoinServer()  -- Rejoin the server if the chest is not found
