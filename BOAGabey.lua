@@ -1,38 +1,54 @@
--- Define a flag to enable/disable the script
-local isAutoExecuteEnabled = true
-
--- Function to display the status message (enabled/disabled)
-local function showStatusMessage(status)
+-- Function to create and show the GUI with text
+local function createAndShowGUI()
+    -- Create a ScreenGui
     local screenGui = Instance.new("ScreenGui")
     screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    print("ScreenGui Created")
 
-    local textLabel = Instance.new("TextLabel")
-    textLabel.Text = status
-    textLabel.Size = UDim2.new(0.5, 0, 0.1, 0)
-    textLabel.Position = UDim2.new(0.25, 0, 0.45, 0)
-    textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    textLabel.BackgroundTransparency = 1
-    textLabel.TextSize = 30
-    textLabel.Font = Enum.Font.SourceSansBold
-    textLabel.TextStrokeTransparency = 0.5
-    textLabel.Parent = screenGui
+    -- Create a TextLabel to display the message multiple times
+    for i = 0, 10 do  -- Repeat 10 times
+        local textLabel = Instance.new("TextLabel")
+        textLabel.Text = "Gabe is so BOAAAA"  -- The text you want to show
+        textLabel.Size = UDim2.new(1, 0, 0.1, 0)  -- Full width, small height
+        textLabel.Position = UDim2.new(0, 0, 0.1 * i, 0)  -- Position it lower with each loop
+        textLabel.TextColor3 = Color3.fromRGB(255, 0, 0)  -- Red text
+        textLabel.TextSize = 50  -- Large text size
+        textLabel.BackgroundTransparency = 1  -- Transparent background
+        textLabel.TextStrokeTransparency = 0.5  -- Slight stroke for readability
+        textLabel.Font = Enum.Font.SourceSansBold  -- Bold font
+        textLabel.Parent = screenGui
+        print("TextLabel Created")
+    end
 
-    -- Remove the message after 2 seconds
-    wait(2)
+    -- Wait for 3 seconds before removing the GUI
+    wait(3)
     screenGui:Destroy()
+    print("ScreenGui Destroyed")
 end
 
--- Function to toggle auto-execution when 'P' is pressed
-game:GetService("UserInputService").InputBegan:Connect(function(input)
-    if input.KeyCode == Enum.KeyCode.P then
-        isAutoExecuteEnabled = not isAutoExecuteEnabled  -- Toggle the state
-        if isAutoExecuteEnabled then
-            showStatusMessage("Gabe BOA Enabled")
-        else
-            showStatusMessage("Auto Execute Disabled")
+-- Create the GUI when the script is executed
+createAndShowGUI()
+
+-- Function to play the sound at regular intervals
+local function playSoundContinuously()
+    local sound = Instance.new("Sound")
+    sound.SoundId = "rbxassetid://2820356263"
+    sound.Parent = game.Workspace
+    sound.Looped = true
+    sound.Volume = 10  -- Adjust the volume as needed
+    sound:Play()  -- Play immediately
+
+    -- Play the sound continuously every 5 seconds
+    while true do
+        if not sound.IsPlaying then
+            sound:Play()  -- Play the sound if it stopped
         end
+        wait(5)  -- Wait for 5 seconds before playing again
     end
-end)
+end
+
+-- Call the sound-playing function in a separate thread
+spawn(playSoundContinuously)
 
 -- Function to select and spawn Invisible Woman character (only once)
 local function selectAndSpawnCharacter()
@@ -80,11 +96,11 @@ local function interactWithChest()
         local playerPos = LocalPlayer.Character.HumanoidRootPart.Position
 
         if (chestPos - playerPos).Magnitude <= 10 then
-            -- Hold 'E' for 5 seconds
-            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, nil)
-            wait(5)
-            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, nil)
-            print("[INFO] Attempted to claim the chest.")
+            -- Simulate 'E' key press for chest interaction
+            print("[INFO] Attempting to claim the chest.")
+            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, nil)  -- Keydown event (press E)
+            wait(5)  -- Hold for 5 seconds (you can adjust the time if needed)
+            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, nil)  -- Keyup event (release E)
         else
             print("[INFO] Too far from the chest.")
         end
