@@ -121,6 +121,32 @@ local function rejoinServer()
     game:GetService("TeleportService"):Teleport(game.PlaceId)
 end
 
+-- Function to reset camera position (directly above the player, zoomed out a bit)
+local function resetCameraPosition()
+    local camera = game.Workspace.CurrentCamera
+    camera.CameraType = Enum.CameraType.Scriptable
+    camera.CFrame = CFrame.new(LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 20, 0))  -- Adjust the height and distance
+    camera.CFrame = camera.CFrame * CFrame.Angles(math.rad(-15), 0, 0)  -- Tilt the camera slightly downward
+end
+
+-- Function to remove any existing GUI elements that may block the view
+local function removeExistingGUIs()
+    local playerGui = LocalPlayer:WaitForChild("PlayerGui")
+    for _, gui in pairs(playerGui:GetChildren()) do
+        if gui:IsA("ScreenGui") then
+            gui:Destroy()
+        end
+    end
+end
+
+-- Main logic starts here
+
+-- Ensure the camera is set correctly
+resetCameraPosition()
+
+-- Remove any GUI that could block the screen
+removeExistingGUIs()
+
 -- Spawn the character only once before the main loop
 selectAndSpawnCharacter()
 
