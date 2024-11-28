@@ -148,8 +148,8 @@ end
 local function rejoinServer()
     print("[INFO] No chest found. Attempting to rejoin...")
 
-    -- Kick the player to mimic Infinite Yield's behavior
-    LocalPlayer:Kick("Rejoining...")
+    -- Kick the player to mimic Infinite Yield's behavior with the custom message
+    LocalPlayer:Kick("Gabe did this, he boa :((.")  -- New custom kick message
 
     -- Wait for a moment to allow the kick message to appear
     wait(2)
