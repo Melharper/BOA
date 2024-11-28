@@ -72,10 +72,10 @@ local function selectAndSpawnCharacter()
     end
 end
 
--- Add a small delay before spawning to ensure all services are loaded
-wait(2)  -- Wait for 2 seconds before spawning the character
+-- Wait for 5 seconds to ensure the game has loaded and character can be spawned
+wait(5)
 
--- Spawn the character only once before the main loop
+-- Ensure the character is spawned only once when the game starts
 selectAndSpawnCharacter()
 
 -- Get necessary services
