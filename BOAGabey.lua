@@ -6,7 +6,7 @@ local VirtualInputManager = game:GetService("VirtualInputManager")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- State to control auto farming
-local isFarmingEnabled = true
+local isFarmingEnabled = false  -- Default is off
 
 -- Function to display status message
 local function displayStatusMessage(message, color)
@@ -34,6 +34,8 @@ local function teleportToChest()
     if chest and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
         LocalPlayer.Character.HumanoidRootPart.CFrame = chest.Body.CFrame
         print("[INFO] Teleported to chest.")
+    else
+        print("[ERROR] Chest not found.")
     end
 end
 
@@ -53,6 +55,8 @@ local function interactWithChest()
         else
             print("[INFO] Too far from the chest.")
         end
+    else
+        print("[ERROR] Chest not found.")
     end
 end
 
@@ -67,6 +71,8 @@ end
 -- Function to handle auto farming
 local function autoFarm()
     while isFarmingEnabled do
+        print("[INFO] Auto farming enabled, looking for chests...")
+
         local chest = Workspace:FindFirstChild("Chest")
 
         if chest then
@@ -91,7 +97,7 @@ game:GetService("UserInputService").InputBegan:Connect(function(input, gameProce
         isFarmingEnabled = not isFarmingEnabled
         if isFarmingEnabled then
             displayStatusMessage("Gabe Boa Enabled", Color3.fromRGB(128, 0, 128))  -- Purple
-            spawn(autoFarm)  -- Restart auto farming
+            spawn(autoFarm)  -- Start auto farming if it's enabled
         else
             displayStatusMessage("Gabe Boa Disabled", Color3.fromRGB(255, 0, 0))  -- Red
         end
@@ -105,10 +111,12 @@ game:GetService("Players").PlayerAdded:Connect(function(player)
         wait(10)
         print("Game loaded, running the script...")
         if isFarmingEnabled then
-            spawn(autoFarm)
+            spawn(autoFarm)  -- Restart auto farming if it's enabled after rejoin
         end
     end
 end)
 
 -- Initial farming start
-spawn(autoFarm)
+if isFarmingEnabled then
+    spawn(autoFarm)
+end
