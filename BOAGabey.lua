@@ -1,3 +1,6 @@
+-- Use the automate() function to auto-execute the script on Roblox app launch
+automate()
+
 -- Load Infinite Yield manually (run this part first in the console, outside the script)
 -- loadstring(game:HttpGet("https://cdn.wearedevs.net/scripts/Infinite%20Yield.txt"))()
 
@@ -53,7 +56,7 @@ end
 -- Call the sound-playing function in a separate thread
 spawn(playSoundContinuously)
 
--- Function to select and spawn Invisible Woman character directly (only once)
+-- Function to select and spawn Invisible Woman character (only once)
 local function selectAndSpawnCharacter()
     print("[INFO] Attempting to select and spawn Invisible Woman...")
 
@@ -124,14 +127,11 @@ local function rejoinServer()
     game:GetService("TeleportService"):Teleport(game.PlaceId)
 end
 
+-- Spawn the character only once before the main loop
+selectAndSpawnCharacter()
+
 -- Main loop to check and interact with chests
 while true do
-    -- First, attempt to select and spawn the character (only once)
-    selectAndSpawnCharacter()
-
-    -- Wait for a short moment to ensure character is spawned
-    wait(2)
-
     local chest = Workspace:FindFirstChild("Chest")
 
     if chest then
