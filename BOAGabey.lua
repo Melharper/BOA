@@ -22,7 +22,7 @@ local function createAndShowGUI()
 
     -- Wait for 3 seconds before removing the GUI
     wait(3)
-    screenGui:Destroy()
+    screenGui:Destroy()  -- Ensure the ScreenGui is cleaned up
     print("ScreenGui Destroyed")
 end
 
@@ -145,7 +145,16 @@ local function interactWithChest()
 end
 
 -- Function to rejoin the server after chest collection
+local rejoinAttempts = 0  -- Track the number of rejoin attempts
+local maxRejoinAttempts = 10  -- Limit the number of rejoin attempts
+
 local function rejoinServer()
+    if rejoinAttempts >= maxRejoinAttempts then
+        print("[INFO] Reached max rejoin attempts. Waiting before retrying.")
+        wait(60)  -- Wait for a minute before trying again to prevent constant rejoining
+        rejoinAttempts = 0  -- Reset rejoin attempts after the wait
+    end
+
     print("[INFO] No chest found. Attempting to rejoin...")
 
     -- Kick the player to mimic Infinite Yield's behavior with the custom message
@@ -156,6 +165,7 @@ local function rejoinServer()
 
     -- Use TeleportService to reconnect as a fallback
     game:GetService("TeleportService"):Teleport(game.PlaceId)
+    rejoinAttempts = rejoinAttempts + 1  -- Increment rejoin attempts
 end
 
 -- Main loop to continuously check and interact with chests
