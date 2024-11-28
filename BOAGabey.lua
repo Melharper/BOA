@@ -1,122 +1,56 @@
--- Services
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local Workspace = game:GetService("Workspace")
-local VirtualInputManager = game:GetService("VirtualInputManager")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+-- Define a flag to enable/disable the script
+local isAutoExecuteEnabled = true
 
--- State to control auto farming
-local isFarmingEnabled = false  -- Default is off
-
--- Function to display status message
-local function displayStatusMessage(message, color)
+-- Function to display the status message (enabled/disabled)
+local function showStatusMessage(status)
     local screenGui = Instance.new("ScreenGui")
     screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-    
+
     local textLabel = Instance.new("TextLabel")
-    textLabel.Text = message
-    textLabel.Size = UDim2.new(1, 0, 0.1, 0)  -- Full width, small height
-    textLabel.Position = UDim2.new(0, 0, 0.4, 0)  -- Center vertically
-    textLabel.TextColor3 = color  -- Custom color
-    textLabel.TextSize = 50
+    textLabel.Text = status
+    textLabel.Size = UDim2.new(0.5, 0, 0.1, 0)
+    textLabel.Position = UDim2.new(0.25, 0, 0.45, 0)
+    textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     textLabel.BackgroundTransparency = 1
+    textLabel.TextSize = 30
     textLabel.Font = Enum.Font.SourceSansBold
+    textLabel.TextStrokeTransparency = 0.5
     textLabel.Parent = screenGui
 
-    -- Destroy after 3 seconds
-    wait(3)
+    -- Remove the message after 2 seconds
+    wait(2)
     screenGui:Destroy()
 end
 
--- Function to teleport to chest
-local function teleportToChest()
-    local chest = Workspace:FindFirstChild("Chest")
-    if chest and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        LocalPlayer.Character.HumanoidRootPart.CFrame = chest.Body.CFrame
-        print("[INFO] Teleported to chest.")
-    else
-        print("[ERROR] Chest not found.")
-    end
-end
-
--- Function to interact with chest
-local function interactWithChest()
-    local chest = Workspace:FindFirstChild("Chest")
-    if chest and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        local chestPos = chest.Body.CFrame.Position
-        local playerPos = LocalPlayer.Character.HumanoidRootPart.Position
-
-        if (chestPos - playerPos).Magnitude <= 10 then
-            -- Hold 'E' for 5 seconds
-            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, nil)
-            wait(5)
-            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, nil)
-            print("[INFO] Attempted to claim the chest.")
-        else
-            print("[INFO] Too far from the chest.")
-        end
-    else
-        print("[ERROR] Chest not found.")
-    end
-end
-
--- Function to rejoin server
-local function rejoinServer()
-    print("[INFO] No chest found. Attempting to rejoin...")
-    LocalPlayer:Kick("Rejoining...")
-    wait(2)
-    game:GetService("TeleportService"):Teleport(game.PlaceId)
-end
-
--- Function to handle auto farming
-local function autoFarm()
-    while isFarmingEnabled do
-        print("[INFO] Auto farming enabled, looking for chests...")
-
-        local chest = Workspace:FindFirstChild("Chest")
-
-        if chest then
-            teleportToChest()
-            wait(1)  -- Allow time for teleport
-            interactWithChest()
-        else
-            print("[INFO] Chest not found. Rejoining...")
-            rejoinServer()
-            wait(2)
-        end
-
-        -- Check every second for a new chest
-        wait(1)
-    end
-end
-
--- Keybind to toggle auto farming
-game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
+-- Function to toggle auto-execution when 'P' is pressed
+game:GetService("UserInputService").InputBegan:Connect(function(input)
     if input.KeyCode == Enum.KeyCode.P then
-        isFarmingEnabled = not isFarmingEnabled
-        if isFarmingEnabled then
-            displayStatusMessage("Gabe Boa Enabled", Color3.fromRGB(128, 0, 128))  -- Purple
-            spawn(autoFarm)  -- Start auto farming if it's enabled
+        isAutoExecuteEnabled = not isAutoExecuteEnabled  -- Toggle the state
+        if isAutoExecuteEnabled then
+            showStatusMessage("Gabe BOA Enabled")
         else
-            displayStatusMessage("Gabe Boa Disabled", Color3.fromRGB(255, 0, 0))  -- Red
+            showStatusMessage("Auto Execute Disabled")
         end
     end
 end)
 
--- Wait 10 seconds after rejoining
+-- Auto-execute script when rejoining
 game:GetService("Players").PlayerAdded:Connect(function(player)
-    if player == LocalPlayer then
+    if player == game.Players.LocalPlayer then
+        -- Add a 10-second delay to ensure the game has fully loaded
         print("Rejoined the game, waiting for game to load...")
-        wait(10)
+
+        wait(10)  -- Wait for 10 seconds
+
         print("Game loaded, running the script...")
-        if isFarmingEnabled then
-            spawn(autoFarm)  -- Restart auto farming if it's enabled after rejoin
+
+        -- Check if auto-execution is enabled
+        if isAutoExecuteEnabled then
+            print("Auto Execute is enabled, executing the script...")
+            -- Load and execute the original script from GitHub
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/Melharper/BOA/main/BOAGabey.lua"))()
+        else
+            print("Auto Execute is disabled.")
         end
     end
 end)
-
--- Initial farming start
-if isFarmingEnabled then
-    spawn(autoFarm)
-end
