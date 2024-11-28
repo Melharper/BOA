@@ -1,3 +1,27 @@
+-- Define a flag to enable/disable the script
+local isAutoExecuteEnabled = true
+
+-- Function to display the status message (enabled/disabled)
+local function showStatusMessage(status)
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Text = status
+    textLabel.Size = UDim2.new(0.5, 0, 0.1, 0)
+    textLabel.Position = UDim2.new(0.25, 0, 0.45, 0)
+    textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textLabel.BackgroundTransparency = 1
+    textLabel.TextSize = 30
+    textLabel.Font = Enum.Font.SourceSansBold
+    textLabel.TextStrokeTransparency = 0.5
+    textLabel.Parent = screenGui
+
+    -- Remove the message after 2 seconds
+    wait(2)
+    screenGui:Destroy()
+end
+
 -- Function to create and show the GUI with text
 local function createAndShowGUI()
     -- Create a ScreenGui
@@ -141,3 +165,15 @@ while true do
     -- Check every second for a new chest after rejoining
     wait(1)
 end
+
+-- Function to toggle auto-execution when 'P' is pressed
+game:GetService("UserInputService").InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.P then
+        isAutoExecuteEnabled = not isAutoExecuteEnabled  -- Toggle the state
+        if isAutoExecuteEnabled then
+            showStatusMessage("Gabe Boa Enabled")  -- Show enabled status
+        else
+            showStatusMessage("Gabe Boa Disabled")  -- Show disabled status
+        end
+    end
+end)
