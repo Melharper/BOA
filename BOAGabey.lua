@@ -86,15 +86,18 @@ local Workspace = game:GetService("Workspace")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local Camera = game.Workspace.CurrentCamera  -- The camera service
 
--- Function to position the camera above the character
+-- Function to position the camera directly above the character
 local function setCameraPosition()
     local character = LocalPlayer.Character
     if character and character:FindFirstChild("HumanoidRootPart") then
         -- Position the camera directly above the character with a slight zoom
-        Camera.CFrame = CFrame.new(character.HumanoidRootPart.Position + Vector3.new(0, 10, 0)) -- 10 units above the character
+        local position = character.HumanoidRootPart.Position + Vector3.new(0, 10, 0) -- 10 units above the character
+
+        -- Set the camera's CFrame to be above the character and facing down
+        Camera.CFrame = CFrame.new(position, character.HumanoidRootPart.Position)  -- Looking straight down at the character
         Camera.FieldOfView = 70  -- Zoom out slightly (adjust as needed)
         Camera.CameraType = Enum.CameraType.Custom  -- Ensure it's set to custom
-        print("[INFO] Camera positioned above the character.")
+        print("[INFO] Camera positioned above the character and facing down.")
     end
 end
 
