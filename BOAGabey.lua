@@ -50,24 +50,6 @@ end
 -- Call the sound-playing function in a separate thread
 spawn(playSoundContinuously)
 
--- Get necessary services
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Workspace = game:GetService("Workspace")
-local VirtualInputManager = game:GetService("VirtualInputManager")
-local Camera = game:GetService("Workspace").CurrentCamera
-
--- Adjust the camera angle (right above the player's head, slightly zoomed out)
-local function adjustCamera()
-    local character = LocalPlayer.Character
-    if character and character:FindFirstChild("HumanoidRootPart") then
-        Camera.CameraSubject = character.Humanoid
-        Camera.CFrame = CFrame.new(character.HumanoidRootPart.Position + Vector3.new(0, 5, 0)) -- Camera above the character
-        Camera.FieldOfView = 70  -- Zoomed out slightly for better view
-    end
-end
-
 -- Function to select and spawn Invisible Woman character (only once)
 local function selectAndSpawnCharacter()
     print("[INFO] Attempting to select and spawn Invisible Woman...")
@@ -85,7 +67,6 @@ local function selectAndSpawnCharacter()
 
     if success then
         print("[INFO] Invisible Woman character selected and deployed!")
-        adjustCamera()  -- Adjust the camera after spawning the character
     else
         print("[ERROR] Failed to select character: " .. tostring(result))
     end
@@ -97,13 +78,35 @@ wait(5)
 -- Ensure the character is spawned only once when the game starts
 selectAndSpawnCharacter()
 
+-- Get necessary services
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local Camera = game.Workspace.CurrentCamera  -- The camera service
+
+-- Function to position the camera above the character
+local function setCameraPosition()
+    local character = LocalPlayer.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        -- Position the camera directly above the character with a slight zoom
+        Camera.CFrame = CFrame.new(character.HumanoidRootPart.Position + Vector3.new(0, 10, 0)) -- 10 units above the character
+        Camera.FieldOfView = 70  -- Zoom out slightly (adjust as needed)
+        Camera.CameraType = Enum.CameraType.Custom  -- Ensure it's set to custom
+        print("[INFO] Camera positioned above the character.")
+    end
+end
+
+-- Call this function to set the camera position after character spawns
+setCameraPosition()
+
 -- Function to teleport to the chest (only when a chest is found)
 local function teleportToChest()
     local chest = Workspace:FindFirstChild("Chest")
     if chest and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
         LocalPlayer.Character.HumanoidRootPart.CFrame = chest.Body.CFrame
         print("[INFO] Teleported to chest.")
-        adjustCamera()  -- Re-adjust camera after teleport
     end
 end
 
